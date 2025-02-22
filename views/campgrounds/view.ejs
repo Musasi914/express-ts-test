@@ -1,0 +1,26 @@
+<div class="container overflow-hidden">
+  <div class="row gx-5">
+    <div class="col">
+      <div class="p-3">
+        <h2><%= data.title %></h2>
+        <p><%= data.location %></p>
+        <img
+          src="https://picsum.photos/400/300"
+          alt=""
+          width="400"
+          height="300"
+        />
+        <p class="mt-3"><%= data.description %></p>
+        <a href="/campgrounds/<%= data.id %>/edit" class="btn btn-success"
+          >編集する</a
+        >
+        <form action="/campgrounds/<%= data.id %>?_method=DELETE" method="post">
+          <button class="btn btn-danger">削除</button>
+        </form>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-3">Custom column padding</div>
+    </div>
+  </div>
+</div>
