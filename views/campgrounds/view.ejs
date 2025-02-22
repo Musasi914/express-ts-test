@@ -21,7 +21,50 @@
       </div>
     </div>
     <div class="col">
-      <div class="p-3">Custom column padding</div>
+      <div class="p-3">
+        <div class="mb-3">
+          <form
+            action="/campgrounds/<%= data.id %>/reviews"
+            method="post"
+            class="needs-validation"
+            novalidate
+          >
+            <div class="mb-3">
+              <label for="customRange1" class="form-label">レビュー</label>
+              <input
+                type="range"
+                name="rating"
+                class="form-range"
+                id="customRange1"
+                min="1"
+                max="5"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="body" class="form-label">コメント</label>
+              <textarea name="body" class="form-control" id="body"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">投稿する</button>
+          </form>
+        </div>
+        <% for(let review of data.reviews) {%>
+        <div class="card mb-3">
+          <div class="card-body">
+            <p>星<%= review.rating %></p>
+            <p><%= review.body %></p>
+            <div class="d-flex justify-content-between">
+              <small><%= review.createdAt.toLocaleString("ja-JP") %></small>
+              <form
+                action="/campgrounds/<%= data.id %>/reviews/<%= review.id %>?_method=DELETE"
+                method="post"
+              >
+                <button type="submit" class="btn btn-danger">削除</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      </div>
     </div>
   </div>
 </div>

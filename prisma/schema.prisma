@@ -27,4 +27,14 @@ model Campgrounds {
   location String
   description String @db.Text
   price Int?
+  reviews Review[]
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  body String
+  rating Int
+  campgrounds Campgrounds @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
 }

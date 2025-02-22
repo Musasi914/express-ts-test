@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import expressLayouts from "express-ejs-layouts";
 import methodOverride from "method-override";
+import session from "express-session";
 
 import { router as indexRouter } from "./routes/index";
 import { router as campgroundsRouter } from "./routes/campgrounds";
@@ -14,6 +15,17 @@ const app = express();
 // view engine setup
 app.set("views", "views");
 app.set("view engine", "ejs");
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
+  })
+);
 app.use(expressLayouts);
 app.use(methodOverride("_method"));
 app.use(logger("dev"));
