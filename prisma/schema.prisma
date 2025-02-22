@@ -26,4 +26,5 @@ model Campgrounds {
   title String @db.VarChar(100)
   location String
   description String @db.Text
+  price Int?
 }
