@@ -32,7 +32,7 @@ router.get(
       where: { id: Number(id) },
     });
     if (!data) {
-      return next(createError(404, "キャンプ場が見つからない"));
+      return next(createError(404, "キャンプ場が見つからないよ"));
     }
     res.render("campgrounds/edit", { data });
   }
