@@ -1,5 +1,4 @@
 <h1>キャンプ場一覧</h1>
-<p><%= success %></p>
 <a href="/campgrounds/new" class="btn btn-secondary">新規登録</a>
 
 <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
@@ -17,7 +16,7 @@
         <h5 class="card-title"><%= item.title %></h5>
         <p class="card-text">場所：<%= item.location %></p>
         <p class="card-text"><%= item.description %></p>
-        <a href="/campgrounds/<%= item.id %>" class="btn btn-primary mt-auto"
+        <a href="/campgrounds/<%= item.id %>" class="btn btn-info mt-auto"
           >View</a
         >
       </div>

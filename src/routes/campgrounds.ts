@@ -1,12 +1,11 @@
 import createError from "http-errors";
-import { PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import express from "express";
 import { catchAsync } from "../utils/catchAsync";
+import { prisma } from "../app";
+import { isLoggedIn } from "../middleware/isLoggedin";
 
 const router = express.Router();
-
-const prisma = new PrismaClient();
 
 /* GET home page. */
 router
@@ -22,6 +21,7 @@ router
     })
   )
   .post(
+    isLoggedIn,
     catchAsync(async (req: Request, res: Response) => {
       const { title, location, description, price } = req.body;
       await prisma.campgrounds.create({
@@ -34,6 +34,7 @@ router
 
 router.get(
   "/new",
+  isLoggedIn,
   catchAsync(async (req: Request, res: Response) => {
     res.render("campgrounds/new");
   })
@@ -56,6 +57,7 @@ router
     })
   )
   .put(
+    isLoggedIn,
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
       const { title, location, description, price } = req.body;
@@ -73,6 +75,7 @@ router
     })
   )
   .delete(
+    isLoggedIn,
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
       await prisma.campgrounds.delete({
@@ -85,6 +88,7 @@ router
 
 router.get(
   "/:id/edit",
+  isLoggedIn,
   catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = await prisma.campgrounds.findUnique({
