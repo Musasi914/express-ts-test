@@ -7,11 +7,18 @@ import expressLayouts from "express-ejs-layouts";
 import methodOverride from "method-override";
 import session from "express-session";
 import flash from "connect-flash";
+import bcrypt from "bcrypt";
+import { PrismaClient, User } from "@prisma/client";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
 import { router as indexRouter } from "./routes/index";
 import { router as campgroundsRouter } from "./routes/campgrounds";
+import { router as usersRouter } from "./routes/users";
 
 const app = express();
+
+export const prisma = new PrismaClient();
 
 // view engine setup
 app.set("views", "views");
@@ -34,6 +41,49 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static("public"));
+// express-session後に
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email" },
+    async (email, password, done) => {
+      try {
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user)
+          return done(null, false, { message: "ユーザーが見つかりません" });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch)
+          return done(null, false, { message: "パスワードが違います" });
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  try {
+    done(null, (user as User).id);
+  } catch (error) {
+    done(error);
+  }
+});
+
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return done(null, false);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
 
 app.use(flash());
 app.use((req, res, next) => {
@@ -43,6 +93,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/", indexRouter);
+app.use("/", usersRouter);
 app.use("/campgrounds", campgroundsRouter);
 
 // catch 404 and forward to error handler
