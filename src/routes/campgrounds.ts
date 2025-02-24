@@ -27,6 +27,7 @@ router
       await prisma.campgrounds.create({
         data: { title, location, description, price: Number(price) },
       });
+      req.flash("success", "キャンプ場を登録しました");
       res.redirect("/campgrounds");
     })
   );
@@ -47,6 +48,10 @@ router
         where: { id: Number(id) },
         include: { reviews: true },
       });
+      if (!data) {
+        req.flash("error", "不明なキャンプ場です");
+        return res.redirect("/campgrounds");
+      }
       res.render("campgrounds/view", { data });
     })
   )
@@ -63,6 +68,7 @@ router
           description,
         },
       });
+      req.flash("success", "編集しました");
       res.redirect(`/campgrounds/${newCampgrounds.id}`);
     })
   )
@@ -72,6 +78,7 @@ router
       await prisma.campgrounds.delete({
         where: { id: Number(id) },
       });
+      req.flash("success", "キャンプ場を削除しました");
       res.redirect("/campgrounds");
     })
   );
@@ -83,6 +90,10 @@ router.get(
     const data = await prisma.campgrounds.findUnique({
       where: { id: Number(id) },
     });
+    if (!data) {
+      req.flash("error", "キャンプ場が見つかりませんでした");
+      return res.redirect("/campgrounds");
+    }
     res.render("campgrounds/edit", { data });
   })
 );
@@ -104,6 +115,7 @@ router.post(
         },
       },
     });
+    req.flash("success", "レビューを登録しました");
     res.redirect(`/campgrounds/${id}`);
   })
 );
@@ -118,6 +130,7 @@ router.delete(
         campgrounds: { id: Number(id) },
       },
     });
+    req.flash("success", "レビューを削除しました");
     res.redirect(`/campgrounds/${id}`);
   })
 );

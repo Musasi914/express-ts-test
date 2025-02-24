@@ -46,7 +46,9 @@
         </div>
       </nav>
     </header>
-    <main class="p-4"><%- body %></main>
+    <main class="container p-4">
+      <%- include('./partials/flash') %> <%- body %>
+    </main>
     <footer class="text-center bg-dark mt-auto">
       <p class="text-secondary py-3 mb-0">@20250220</p>
     </footer>

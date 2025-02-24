@@ -6,6 +6,7 @@ import logger from "morgan";
 import expressLayouts from "express-ejs-layouts";
 import methodOverride from "method-override";
 import session from "express-session";
+import flash from "connect-flash";
 
 import { router as indexRouter } from "./routes/index";
 import { router as campgroundsRouter } from "./routes/campgrounds";
@@ -33,6 +34,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static("public"));
+
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 app.use("/", indexRouter);
 app.use("/campgrounds", campgroundsRouter);
