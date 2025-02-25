@@ -35,12 +35,20 @@
               <li class="nav-item">
                 <a class="nav-link" href="/campgrounds">キャンプ場</a>
               </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+              <% if(currentUser) { %>
               <li class="nav-item">
-                <a class="nav-link" href="/login">ログイン</a>
+                <a class="nav-link" href="/logout">ログアウト</a>
               </li>
+              <% } else { %>
               <li class="nav-item">
                 <a class="nav-link" href="/register">ユーザー登録</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/login">ログイン</a>
+              </li>
+              <% } %>
             </ul>
           </div>
         </div>
