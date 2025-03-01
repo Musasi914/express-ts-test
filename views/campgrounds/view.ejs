@@ -12,12 +12,15 @@
           height="300"
         />
         <p class="mt-3"><%= data.description %></p>
+        <p class="mt-3">登録者：<%= data.user.name %></p>
+        <% if(userId === data.user.id) { %>
         <a href="/campgrounds/<%= data.id %>/edit" class="btn btn-success"
           >編集する</a
         >
         <form action="/campgrounds/<%= data.id %>?_method=DELETE" method="post">
           <button class="btn btn-danger">削除</button>
         </form>
+        <% } %>
       </div>
     </div>
     <div class="col">

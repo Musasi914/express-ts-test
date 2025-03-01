@@ -20,6 +20,7 @@ model User {
   name String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  campgrounds Campgrounds[]
 }
 
 model Campgrounds {
@@ -29,6 +30,8 @@ model Campgrounds {
   description String @db.Text
   price Int?
   reviews Review[]
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model Review {
