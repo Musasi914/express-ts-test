@@ -4,6 +4,9 @@ import express from "express";
 import { catchAsync } from "../utils/catchAsync";
 import { prisma } from "../app";
 import { isLoggedIn } from "../middleware/isLoggedin";
+import { storeReturnTo } from "../middleware/storeReturnTo";
+import { User } from "@prisma/client";
+import { isAuthor } from "../middleware/isAuthor";
 
 const router = express.Router();
 
@@ -23,10 +26,19 @@ router
   .post(
     isLoggedIn,
     catchAsync(async (req: Request, res: Response) => {
+      console.log(req.body);
       const { title, location, description, price } = req.body;
-      await prisma.campgrounds.create({
-        data: { title, location, description, price: Number(price) },
-      });
+      if (req.user) {
+        await prisma.campgrounds.create({
+          data: {
+            title,
+            location,
+            description,
+            price: Number(price),
+            user: { connect: { id: (req.user as User).id } },
+          },
+        });
+      }
       req.flash("success", "キャンプ場を登録しました");
       res.redirect("/campgrounds");
     })
@@ -45,19 +57,27 @@ router
   .get(
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
+      if (Number.isNaN(Number(id))) {
+        req.flash("error", "不明なキャンプ場です");
+        return res.redirect("/campgrounds");
+      }
       const data = await prisma.campgrounds.findUnique({
         where: { id: Number(id) },
-        include: { reviews: true },
+        include: { reviews: true, user: true },
       });
       if (!data) {
         req.flash("error", "不明なキャンプ場です");
         return res.redirect("/campgrounds");
       }
-      res.render("campgrounds/view", { data });
+      res.render("campgrounds/view", {
+        data,
+        userId: req.user ? (req.user as User).id : null,
+      });
     })
   )
   .put(
     isLoggedIn,
+    isAuthor,
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
       const { title, location, description, price } = req.body;
@@ -75,7 +95,9 @@ router
     })
   )
   .delete(
+    storeReturnTo,
     isLoggedIn,
+    isAuthor,
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
       await prisma.campgrounds.delete({
@@ -89,6 +111,7 @@ router
 router.get(
   "/:id/edit",
   isLoggedIn,
+  isAuthor,
   catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = await prisma.campgrounds.findUnique({

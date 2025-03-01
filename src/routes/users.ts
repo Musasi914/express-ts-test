@@ -6,6 +6,7 @@ import { prisma } from "../app";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import { User } from "@prisma/client";
+import { storeReturnTo } from "../middleware/storeReturnTo";
 
 const router = express.Router();
 
@@ -14,15 +15,18 @@ router
   .get((req: Request, res: Response) => {
     res.render("users/register");
   })
-  .post(async (req: Request, res: Response) => {
+  .post(async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-      await prisma.user.create({
+      const registeredUser = await prisma.user.create({
         data: { email, password: hashedPassword, name },
       });
-      req.flash("success", "ユーザー登録完了");
-      res.redirect("/campgrounds");
+      req.login(registeredUser, (err) => {
+        if (err) return next(err);
+        req.flash("success", "ユーザー登録完了");
+        res.redirect("/campgrounds");
+      });
     } catch (error: any) {
       req.flash("error", error.message);
       res.redirect("/register");
@@ -35,6 +39,7 @@ router
     res.render("users/login");
   })
   .post(
+    storeReturnTo,
     passport.authenticate("local", {
       // flashなど設定していないのであれば
       // successRedirect: '/'
@@ -43,7 +48,7 @@ router
     }),
     (req: Request, res: Response) => {
       req.flash("success", `${(req.user as User).name} さんおかえり`);
-      res.redirect("/campgrounds");
+      res.redirect(res.locals.returnTo || "/campgrounds");
     }
   );
 
