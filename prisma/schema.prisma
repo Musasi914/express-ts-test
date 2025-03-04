@@ -21,6 +21,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   campgrounds Campgrounds[]
+  reviews Review[]
 }
 
 model Campgrounds {
@@ -41,4 +42,6 @@ model Review {
   rating Int
   campgrounds Campgrounds @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
