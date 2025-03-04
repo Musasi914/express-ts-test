@@ -11,11 +11,11 @@ router.get(
   }
 );
 
-// router.get("/deleteAll", async (req, res) => {
-//   await prisma.user.deleteMany();
-//   await prisma.campgrounds.deleteMany();
-//   await prisma.review.deleteMany();
-//   res.render("index", { title: "Express" });
-// });
+router.get("/deleteAll", async (req, res) => {
+  await prisma.campgrounds.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.review.deleteMany();
+  res.render("index", { title: "Express" });
+});
 
 export { router };

@@ -63,7 +63,14 @@ router
       }
       const data = await prisma.campgrounds.findUnique({
         where: { id: Number(id) },
-        include: { reviews: true, user: true },
+        include: {
+          reviews: {
+            include: {
+              user: true,
+            },
+          },
+          user: true,
+        },
       });
       if (!data) {
         req.flash("error", "不明なキャンプ場です");
@@ -127,18 +134,23 @@ router.get(
 
 router.post(
   "/:id/reviews",
+  isLoggedIn,
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const { body, rating } = req.body;
     if (Number(rating) < 1 || Number(rating) > 5) {
       return createError(400, "不正な値です");
     }
+    if (!req.user) return createError(400, "ログインして"); //isLoggedInでこれはカバーされているが、TSエラーになるので
     await prisma.review.create({
       data: {
         body,
         rating: Number(rating),
         campgrounds: {
           connect: { id: Number(id) },
+        },
+        user: {
+          connect: { id: (req.user as User).id },
         },
       },
     });
@@ -149,8 +161,16 @@ router.post(
 
 router.delete(
   "/:id/reviews/:reviewId",
+  isLoggedIn,
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id, reviewId } = req.params;
+    const review = await prisma.review.findUnique({
+      where: { id: Number(reviewId) },
+    });
+    if (!req.user || review?.userId !== (req.user as User).id) {
+      req.flash("error", "そのアクションの権限がないです");
+      return res.redirect(`/campgrounds/${id}`);
+    }
     await prisma.review.delete({
       where: {
         id: Number(reviewId),

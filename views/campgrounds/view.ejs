@@ -26,6 +26,7 @@
     <div class="col">
       <div class="">
         <div class="mb-3">
+          <% if(currentUser) { %>
           <form
             action="/campgrounds/<%= data.id %>/reviews"
             method="post"
@@ -49,20 +50,28 @@
             </div>
             <button type="submit" class="btn btn-primary">投稿する</button>
           </form>
+          <% } else { %>
+          <p>ログインすると投稿できます</p>
+          <% } %>
         </div>
         <% for(let review of data.reviews) {%>
         <div class="card mb-3">
           <div class="card-body">
             <p>星<%= review.rating %></p>
             <p><%= review.body %></p>
-            <div class="d-flex justify-content-between">
-              <small><%= review.createdAt.toLocaleString("ja-JP") %></small>
+            <div class="d-flex justify-content-between align-items-end">
+              <div>
+                <small class="d-block">投稿者 <%= review.user.name %></small>
+                <small><%= review.createdAt.toLocaleString("ja-JP") %></small>
+              </div>
+              <% if(currentUser && review.user.id === currentUser.id) { %>
               <form
                 action="/campgrounds/<%= data.id %>/reviews/<%= review.id %>?_method=DELETE"
                 method="post"
               >
                 <button type="submit" class="btn btn-danger">削除</button>
               </form>
+              <% } %>
             </div>
           </div>
         </div>
