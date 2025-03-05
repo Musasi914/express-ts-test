@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="/stylesheets/stars.css" />
+
 <div class="container overflow-hidden">
   <div class="row gx-5">
     <div class="col">
@@ -33,7 +35,7 @@
             class="needs-validation"
             novalidate
           >
-            <div class="mb-3">
+            <!-- <div class="mb-3">
               <label for="customRange1" class="form-label">レビュー</label>
               <input
                 type="range"
@@ -43,6 +45,35 @@
                 min="1"
                 max="5"
               />
+            </div> -->
+            <div class="mb-3">
+              <fieldset class="starability-basic">
+                <legend>評価</legend>
+                <input
+                  type="radio"
+                  id="no-rate"
+                  class="input-no-rate"
+                  name="rating"
+                  value="3"
+                  aria-label="No rating."
+                />
+                <input type="radio" id="first-rate1" name="rating" value="1" />
+                <label for="first-rate1" title="Terrible">1 star</label>
+                <input type="radio" id="first-rate2" name="rating" value="2" />
+                <label for="first-rate2" title="Not good">2 stars</label>
+                <input
+                  type="radio"
+                  id="first-rate3"
+                  name="rating"
+                  value="3"
+                  checked
+                />
+                <label for="first-rate3" title="Average">3 stars</label>
+                <input type="radio" id="first-rate4" name="rating" value="4" />
+                <label for="first-rate4" title="Very good">4 stars</label>
+                <input type="radio" id="first-rate5" name="rating" value="5" />
+                <label for="first-rate5" title="Amazing">5 stars</label>
+              </fieldset>
             </div>
             <div class="mb-3">
               <label for="body" class="form-label">コメント</label>
@@ -57,11 +88,13 @@
         <% for(let review of data.reviews) {%>
         <div class="card mb-3">
           <div class="card-body">
-            <p>星<%= review.rating %></p>
+            <p><%= review.user.name %>さん</p>
+            <p class="starability-result" data-rating="<%= review.rating %>">
+              星: <%= review.rating %> こ
+            </p>
             <p><%= review.body %></p>
             <div class="d-flex justify-content-between align-items-end">
               <div>
-                <small class="d-block">投稿者 <%= review.user.name %></small>
                 <small><%= review.createdAt.toLocaleString("ja-JP") %></small>
               </div>
               <% if(currentUser && review.user.id === currentUser.id) { %>
