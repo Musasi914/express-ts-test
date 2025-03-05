@@ -20,4 +20,5 @@ export const isAuthor = async (
     req.flash("error", "キャンプ場を編集する権限がない");
     return res.redirect(`/campgrounds/${id}`);
   }
+  next();
 };
