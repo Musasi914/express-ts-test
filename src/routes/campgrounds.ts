@@ -7,6 +7,11 @@ import { isLoggedIn } from "../middleware/isLoggedin";
 import { storeReturnTo } from "../middleware/storeReturnTo";
 import { User } from "@prisma/client";
 import { isAuthor } from "../middleware/isAuthor";
+import multer from "multer";
+import path from "node:path";
+import { storage } from "../cloudinary";
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -25,20 +30,21 @@ router
   )
   .post(
     isLoggedIn,
+    upload.array("image"),
     catchAsync(async (req: Request, res: Response) => {
-      console.log(req.body);
-      const { title, location, description, price } = req.body;
-      if (req.user) {
-        await prisma.campgrounds.create({
-          data: {
-            title,
-            location,
-            description,
-            price: Number(price),
-            user: { connect: { id: (req.user as User).id } },
-          },
-        });
-      }
+      console.log(req.files);
+      const { title, location, description, price, image } = req.body;
+      // if (req.user) {
+      //   await prisma.campgrounds.create({
+      //     data: {
+      //       title,
+      //       location,
+      //       description,
+      //       price: Number(price),
+      //       user: { connect: { id: (req.user as User).id } },
+      //     },
+      //   });
+      // }
       req.flash("success", "キャンプ場を登録しました");
       res.redirect("/campgrounds");
     })
