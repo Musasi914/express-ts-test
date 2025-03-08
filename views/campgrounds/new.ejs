@@ -1,6 +1,12 @@
-<h1>新規登録</h1>
+<h1 class="text-center">新規登録</h1>
 <div class="container-sm mx-50 mt-4" style="max-width: 500px">
-  <form action="/campgrounds" method="post" class="needs-validation" novalidate>
+  <form
+    action="/campgrounds"
+    method="post"
+    enctype="multipart/form-data"
+    class="needs-validation"
+    novalidate
+  >
     <div class="mb-3">
       <label for="title" class="form-label">キャンプ場名</label>
       <input
@@ -25,6 +31,16 @@
     <div class="mb-3">
       <label for="price" class="form-label">料金</label>
       <input type="number" class="form-control" id="price" name="price" />
+    </div>
+    <div class="mb-3">
+      <label for="image" class="form-label">画像アップロード</label>
+      <input
+        type="file"
+        class="form-control"
+        id="image"
+        name="image"
+        multiple
+      />
     </div>
     <div class="mb-3">
       <label for="description" class="form-label">説明</label>
