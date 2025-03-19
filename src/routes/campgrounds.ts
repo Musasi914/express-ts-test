@@ -10,6 +10,7 @@ import { isAuthor } from "../middleware/isAuthor";
 import multer from "multer";
 import path from "node:path";
 import { storage } from "../cloudinary";
+import { JsonArray } from "@prisma/client/runtime/library";
 
 const upload = multer({ storage });
 
@@ -32,19 +33,26 @@ router
     isLoggedIn,
     upload.array("image"),
     catchAsync(async (req: Request, res: Response) => {
-      console.log(req.files);
       const { title, location, description, price, image } = req.body;
-      // if (req.user) {
-      //   await prisma.campgrounds.create({
-      //     data: {
-      //       title,
-      //       location,
-      //       description,
-      //       price: Number(price),
-      //       user: { connect: { id: (req.user as User).id } },
-      //     },
-      //   });
-      // }
+      if (!Array.isArray(req.files) || !req.files)
+        return createError(400, "画像がなんかおかしいようです");
+
+      if (req.user) {
+        await prisma.campgrounds.create({
+          data: {
+            title,
+            location,
+            description,
+            price: Number(price),
+            user: { connect: { id: (req.user as User).id } },
+            images: req.files.map((v) => ({
+              url: v.path,
+              filename: v.filename,
+            })),
+          },
+        });
+      }
+
       req.flash("success", "キャンプ場を登録しました");
       res.redirect("/campgrounds");
     })
@@ -91,8 +99,35 @@ router
   .put(
     isLoggedIn,
     isAuthor,
+    upload.array("image"),
     catchAsync(async (req: Request, res: Response) => {
+      if (!Array.isArray(req.files) || !req.files)
+        return createError(400, "画像がなんかおかしいようです");
+      const img = req.files.map((v) => ({
+        url: v.path,
+        filename: v.filename,
+      }));
+
       const { id } = req.params;
+      const campgrounds = await prisma.campgrounds.findUnique({
+        where: { id: Number(id) },
+      });
+      if (!campgrounds)
+        return createError(400, "キャンプ場が見つかりませんでした。");
+
+      let newImages: any[] | undefined = [];
+
+      if (Array.isArray(campgrounds.images)) {
+        newImages.push(campgrounds.images);
+      }
+      newImages.push(...img);
+
+      console.log(newImages);
+
+      if (newImages.length === 0) {
+        newImages = undefined;
+      }
+
       const { title, location, description, price } = req.body;
       const newCampgrounds = await prisma.campgrounds.update({
         where: { id: Number(id) },
@@ -101,6 +136,7 @@ router
           location,
           price: Number(price),
           description,
+          images: newImages,
         },
       });
       req.flash("success", "編集しました");

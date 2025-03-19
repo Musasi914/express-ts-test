@@ -3,6 +3,7 @@
   <form
     action="/campgrounds/<%= data.id %>?_method=PUT"
     method="post"
+    enctype="multipart/form-data"
     class="needs-validation"
     novalidate
   >
@@ -37,6 +38,16 @@
         id="price"
         name="price"
         value="<%= data.price %>"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="image" class="form-label">画像を追加</label>
+      <input
+        type="file"
+        class="form-control"
+        id="image"
+        name="image"
+        multiple
       />
     </div>
     <div class="mb-3">
