@@ -62,7 +62,22 @@
 <%= data.description %></textarea
       >
     </div>
-    <button type="submit" class="btn btn-primary">登録</button>
+    <div class="mb-3">
+      <% if(data.images) { %> <% data.images.forEach((img,i) => { %>
+      <img src="<%= img.url %>" alt="" class="img-thumbnail" />
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value="<%= img.filename %>"
+          name="deleteImages[]"
+          id="image-<%= i %>"
+        />
+        <label class="form-check-label" for="image-<%= i %>"> 削除する </label>
+      </div>
+      <% }) %> <% } %>
+    </div>
+    <button type="submit" class="btn btn-primary">更新</button>
   </form>
 </div>
 

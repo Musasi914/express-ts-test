@@ -8,9 +8,8 @@ import { storeReturnTo } from "../middleware/storeReturnTo";
 import { User } from "@prisma/client";
 import { isAuthor } from "../middleware/isAuthor";
 import multer from "multer";
-import path from "node:path";
-import { storage } from "../cloudinary";
-import { JsonArray } from "@prisma/client/runtime/library";
+import { cloudinary, storage } from "../cloudinary";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 const upload = multer({ storage });
 
@@ -37,6 +36,15 @@ router
       if (!Array.isArray(req.files) || !req.files)
         return createError(400, "画像がなんかおかしいようです");
 
+      let registerImages:
+        | {
+            url: string;
+            filename: string;
+          }[] = req.files.map((v) => ({
+        url: v.path,
+        filename: v.filename,
+      }));
+
       if (req.user) {
         await prisma.campgrounds.create({
           data: {
@@ -45,10 +53,7 @@ router
             description,
             price: Number(price),
             user: { connect: { id: (req.user as User).id } },
-            images: req.files.map((v) => ({
-              url: v.path,
-              filename: v.filename,
-            })),
+            images: registerImages,
           },
         });
       }
@@ -118,14 +123,19 @@ router
       let newImages: any[] | undefined = [];
 
       if (Array.isArray(campgrounds.images)) {
-        newImages.push(campgrounds.images);
+        newImages.push(...campgrounds.images);
       }
       newImages.push(...img);
 
-      console.log(newImages);
+      if (req.body.deleteImages) {
+        newImages = newImages.filter((obj) => {
+          !req.body.deleteImages.includes(obj.filename);
+        });
 
-      if (newImages.length === 0) {
-        newImages = undefined;
+        // req.body.deleteImagesをcloudinaryから削除
+        for (let filename of req.body.deleteImages) {
+          await cloudinary.uploader.destroy(filename);
+        }
       }
 
       const { title, location, description, price } = req.body;
@@ -149,6 +159,27 @@ router
     isAuthor,
     catchAsync(async (req: Request, res: Response) => {
       const { id } = req.params;
+
+      const campgrounds = await prisma.campgrounds.findUnique({
+        where: { id: Number(id) },
+      });
+      if (!campgrounds)
+        return createError(400, "キャンプ場が見つかりませんでした。");
+
+      if (
+        Array.isArray(campgrounds.images) &&
+        campgrounds.images.length !== 0
+      ) {
+        const images = campgrounds.images as {
+          url: string;
+          filename: string;
+        }[];
+
+        for (let image of images) {
+          await cloudinary.uploader.destroy(image.filename);
+        }
+      }
+
       await prisma.campgrounds.delete({
         where: { id: Number(id) },
       });
