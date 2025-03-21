@@ -33,7 +33,7 @@ model Campgrounds {
   reviews Review[]
   user User @relation(fields: [userId], references: [id])
   userId String
-  images Json?
+  images Json @default("[]")
 }
 
 model Review {
