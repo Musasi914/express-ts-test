@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node dist/bin/www.js",
-    "dev": "tsx --watch ./src/bin/www"
+    "dev": "tsx --watch ./src/bin/www",
+    "postinstall": "prisma generate",
+    "build": "node dist/bin/www.js"
   },
   "dependencies": {
     "@prisma/client": "^6.4.0",
